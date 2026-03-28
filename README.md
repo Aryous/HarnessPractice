@@ -52,6 +52,9 @@ intent(approved)
   → verify
 ```
 
-## 来源
+## 参考
 
-从 [墨简 (Mojian)](https://github.com/Aryous/Mojian) 项目抽象而来。
+- [OpenAI: Harness Engineering](https://www.infoq.com/news/2026/02/openai-harness-engineering-codex/) — 核心概念来源
+- [Martin Fowler / Böckeler: Harness Engineering](https://martinfowler.com/articles/harness-engineering.html) — 工程实践视角
+- [Softmax: Three Eras of Building with AI](https://softmaxdata.com/blog/from-prompt-engineering-to-harness-engineering-the-three-eras-of-building-with-ai/) — Prompt → RAG → Harness 三阶段演进
+- [Mitchell Hashimoto: My AI Adoption Journey](https://mitchellh.com/writing/my-ai-adoption-journey) — 个人实践路径
