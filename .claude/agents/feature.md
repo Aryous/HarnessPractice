@@ -31,10 +31,15 @@ on_start:
 
 implement:
     for each task in exec-plan:
+        # 跳过被 design-spec 阻塞的 UI 层 task
+        if task.blocked_by == 'design-spec':
+            skip  # UI 层由 design Agent mode B 负责
+            continue
+
         # 每个任务必须可追溯到 R 或 F
         assert task.related_id in requirements.trace.yaml.trackable
 
-        write code → src/
+        write code → src/（不含 UI 层路径）
         annotate @req tag:
             // @req R1.1 — 简要描述
             // @req F05 — 简要描述
@@ -52,9 +57,9 @@ implement:
 
 verify:
     bash .claude/scripts/trace.sh --sync   # 有覆盖的 open → resolved
-    npm run lint
-    npx tsc -b --noEmit
-    npm test
+    {lint_command}         # 从 CLAUDE.md 项目配置读取
+    {typecheck_command}    # 从 CLAUDE.md 项目配置读取
+    {test_command}         # 从 CLAUDE.md 项目配置读取
 
     if any_fail:
         fix → re-verify
@@ -101,5 +106,8 @@ trace.sh 从 `requirements.trace.yaml` 的 `trackable` 列表获取追踪 ID。
 - 没有 exec-plan 不得开始实现
 - 不得引入 tech-decisions.md 中未记录的依赖
 - 不得违反 ARCHITECTURE.md 的分层规则
+- 不得修改 UI 层代码（ARCHITECTURE.md 定义的 UI 层路径）——UI 层由 design Agent mode B 负责
 - 代码中只用 R 和 F 做 @req 标注，不用 Q
 - 没有测试的代码视为未完成
+
+例外：当 design mode B 上报 Q 要求补逻辑层接口时，feature Agent 可修改 runtime 等逻辑层代码。
