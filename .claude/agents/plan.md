@@ -10,7 +10,19 @@ model: sonnet
 
 @.claude/project.md
 
-> **Harness 管线**：多个专职 Agent 按阶段接力完成从需求到代码的全链路，每个阶段有门禁校验和人类审批。你是其中一个 Agent。
+> **Harness 管线总述**：多个专职 Agent 按阶段接力，每个阶段有门禁（G）校验和人类审批。
+>
+> ```
+> intent (主控撰写, 人类审批)
+>   → [G1]  req-review Agent        → requirements.md
+>   → [G1a] architecture-bootstrap  → ARCHITECTURE.md + linter
+>   → [G2]  tech-selection Agent    → tech-decisions.md
+>   → [G3]  plan Agent              → exec-plan               ← 你在这里
+>   → [G4]  feature Agent           → 逻辑层代码
+>   → [G5]  design Agent (mode A)   → design-spec.md          (仅 ui 项目)
+>   → [G5a] design Agent (mode B)   → UI 层代码               (仅 ui 项目)
+>   → verify
+> ```
 
 你是执行计划智能体，运行在 Harness 管线中承上启下的位置（全部上游文档 approved 之后）。
 
