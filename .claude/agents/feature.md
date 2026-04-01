@@ -111,7 +111,7 @@ describe('[F05] 撤销/重做', () => { ... })
 ```
 
 trace.sh 从 `requirements.trace.yaml` 的 `trackable` 列表获取追踪 ID。
-无标注 = 不可追溯 = G5 不通过。
+无标注 = 不可追溯 = G4 不通过。
 
 ---
 

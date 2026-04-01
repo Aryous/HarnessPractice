@@ -53,14 +53,14 @@ design-spec.md 的章节组织由设计内容驱动，不做硬性规定。
 
 ### 定位
 
-token/组件定义参考。记录 `src/ui/tokens/index.css` 中的设计令牌和组件令牌。
+token/组件定义参考。记录 UI 层 tokens 文件中的设计令牌和组件令牌（路径从 ARCHITECTURE.md 目录映射获取）。
 
 ### 结构
 
 ```
 # 设计令牌参考
 
-> 令牌文件: src/ui/tokens/index.css
+> 令牌文件: {ui_path}/tokens/index.css（路径从 ARCHITECTURE.md 获取）
 > 权威来源: docs/design-docs/design-spec.md
 
 ## L1 基础色（中国传统色）

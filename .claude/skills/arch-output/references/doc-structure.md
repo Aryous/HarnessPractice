@@ -7,7 +7,7 @@
 status: draft | review | approved
 author: architecture-bootstrap
 date: YYYY-MM-DD
-blocks: [tech-selection, design, feature]
+blocks: [tech-selection, plan, design, feature]
 open_questions: 0
 ---
 ```
@@ -60,6 +60,6 @@ tech-selection 完成后由增量修订翻译为具体实现。）
 ## 禁止事项
 
 - 不得把具体库选型写成架构不变量（"用 Zustand" 是技术决策，不是架构约束）
-- 不得写实现细节（"函数签名" 不属于架构文档）
+- 不得写实现细节（内部逻辑、算法、私有函数等不属于架构文档；层间契约中的公开接口签名除外）
 - 若已有 `src/`，目录映射必须忠实反映当前结构
 - 不得将 status 设为 approved（由人类审批）

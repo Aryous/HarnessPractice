@@ -7,14 +7,14 @@
 status: draft | review | approved
 author: plan
 date: YYYY-MM-DD
-blocks: [feature]
+blocks: [feature, design]
 open_questions: 0
 priority: P0 | P1 | P2
 scope: [关联的 R/F ID 列表]
 ---
 ```
 
-- `blocks: [feature]` — exec-plan 阻塞 feature agent
+- `blocks: [feature, design]` — exec-plan 阻塞 feature agent（逻辑层 task）和 design agent（UI 层 task）
 - `scope` 列出本计划覆盖的 trackable ID（从 requirements.trace.yaml）
 - `approved` 时 `open_questions` 必须为 0
 
