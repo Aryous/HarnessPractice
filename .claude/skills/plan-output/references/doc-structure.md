@@ -45,7 +45,9 @@ scope: [关联的 R/F ID 列表]
 ## Task N: [标题]
 
 **关联**: R1.1, F05
+**层级**: types | config | repo | service | runtime | ui（从 ARCHITECTURE.md 域分层模型获取）
 **依赖**: Task M（如有）
+**阻塞条件**: design-spec（仅 UI 层 task，其他层留空）
 
 [描述做什么、为什么这样做]
 
@@ -58,6 +60,9 @@ scope: [关联的 R/F ID 列表]
 
 约束：
 - 每个 task 至少关联一个 R 或 F ID
+- 每个 task 必须标注 `层级` 字段，值从 ARCHITECTURE.md 域分层模型获取
+- UI 层 task 必须标注 `阻塞条件: design-spec`（design-spec 在 feature 逻辑层完成后才产出）
+- task 排序必须遵循架构层级拓扑（底层先行），在依赖关系和优先级之外增加层级维度
 - task 之间的依赖显式标注
 - 不写生产代码，可用伪代码或接口签名
 
