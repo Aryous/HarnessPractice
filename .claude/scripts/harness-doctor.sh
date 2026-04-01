@@ -14,6 +14,13 @@ STRICT=false
 BLOCKERS=0
 WARNINGS=0
 
+# 读取 project.md 的 ui 路由字段
+PROJECT_UI="false"
+if [[ -f "$PROJECT_ROOT/.claude/project.md" ]]; then
+  _parsed_ui="$(grep -E '^ui:' "$PROJECT_ROOT/.claude/project.md" | sed 's/^ui:[[:space:]]*//' | head -1)"
+  [[ "$_parsed_ui" == "true" ]] && PROJECT_UI="true"
+fi
+
 ok() {
   echo "  ✅ $1"
 }
@@ -153,7 +160,12 @@ echo "上游真相源"
 check_status_doc "$PROJECT_ROOT/docs/product-specs/requirements.md" "requirements.md" "true"
 check_architecture_doc
 check_status_doc "$PROJECT_ROOT/docs/tech/tech-decisions.md" "tech-decisions.md" "true"
-check_status_doc "$PROJECT_ROOT/docs/design-docs/design-spec.md" "design-spec.md" "true"
+if [[ "$PROJECT_UI" == "true" ]]; then
+  check_status_doc "$PROJECT_ROOT/docs/design-docs/design-spec.md" "design-spec.md" "false"
+  # design-spec 在新管线中位于 G5（feature 逻辑层之后），不作为前置 blocker
+else
+  ok "design-spec.md 跳过（project.md.ui != true）"
+fi
 echo ""
 
 echo "活跃执行计划"

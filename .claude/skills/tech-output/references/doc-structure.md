@@ -7,7 +7,7 @@
 status: draft | review | approved
 author: tech-selection
 date: YYYY-MM-DD
-blocks: [design, feature]
+blocks: [plan, feature]
 open_questions: 0
 ---
 ```

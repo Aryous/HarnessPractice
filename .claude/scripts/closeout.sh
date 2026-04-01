@@ -33,7 +33,7 @@ block() {
 collect_staged_docs() {
   git -C "$PROJECT_ROOT" diff --cached --name-only 2>/dev/null | while read -r path; do
     case "$path" in
-      .claude/ARCHITECTURE.md|docs/tech/tech-decisions.md|docs/exec-plans/active/*.md|docs/exec-plans/completed/*.md|docs/exemptions/*.md)
+      .claude/ARCHITECTURE.md|docs/product-specs/requirements.md|docs/tech/tech-decisions.md|docs/design-docs/design-spec.md|docs/exec-plans/active/*.md|docs/exec-plans/completed/*.md|docs/exemptions/*.md)
         [[ "$path" == "docs/exemptions/template.md" ]] && continue
         echo "$PROJECT_ROOT/$path"
         ;;
@@ -138,9 +138,17 @@ else
   fi
 fi
 
-run_cmd "npm run lint" npm run lint
-run_cmd "npx tsc -b --noEmit" npx tsc -b --noEmit
-run_cmd "npm test" npm test
+# 验证命令：项目可通过 .claude/project-commands.sh 覆盖
+# 默认值为 npm 命令，非 Node 项目需自定义
+LINT_CMD="${LINT_CMD:-npm run lint}"
+TYPECHECK_CMD="${TYPECHECK_CMD:-npx tsc -b --noEmit}"
+TEST_CMD="${TEST_CMD:-npm test}"
+if [[ -f "$PROJECT_ROOT/.claude/project-commands.sh" ]]; then
+  source "$PROJECT_ROOT/.claude/project-commands.sh"
+fi
+run_cmd "$LINT_CMD" $LINT_CMD
+run_cmd "$TYPECHECK_CMD" $TYPECHECK_CMD
+run_cmd "$TEST_CMD" $TEST_CMD
 
 if [[ -f "$STATE_SCRIPT" ]]; then
   if bash "$STATE_SCRIPT" >/dev/null; then

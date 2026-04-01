@@ -95,6 +95,13 @@ yaml_quote() {
   printf '"%s"' "$value"
 }
 
+# 读取 project.md 的 ui 路由字段
+project_ui="false"
+if [[ -f "$PROJECT_ROOT/.claude/project.md" ]]; then
+  parsed_ui="$(grep -E '^ui:' "$PROJECT_ROOT/.claude/project.md" | sed 's/^ui:[[:space:]]*//' | head -1)"
+  [[ "$parsed_ui" == "true" ]] && project_ui="true"
+fi
+
 intent_file="$PROJECT_ROOT/docs/product-specs/intent.md"
 requirements_file="$PROJECT_ROOT/docs/product-specs/requirements.md"
 architecture_file="$PROJECT_ROOT/.claude/ARCHITECTURE.md"
@@ -200,7 +207,7 @@ if [[ "$tech_exists" == "true" && "$tech_ready" != "true" ]]; then
   add_warning "tech_decisions_waiting_review"
 fi
 
-if [[ "$design_exists" == "true" && "$design_ready" != "true" ]]; then
+if [[ "$project_ui" == "true" && "$design_exists" == "true" && "$design_ready" != "true" ]]; then
   add_warning "design_spec_waiting_review"
 fi
 
@@ -271,25 +278,32 @@ elif [[ "$tech_ready" != "true" ]]; then
   recommended_target="review"
   recommended_reason="tech-decisions.md 已存在但还不能被下游消费。"
   add_blocker "tech_decisions_not_ready"
-elif [[ "$design_exists" != "true" ]]; then
+# --- 新管线顺序：tech → plan → feature → (if ui) design → verify ---
+elif (( active_plan_count == 0 )); then
+  # 无 exec-plan：推荐 plan agent
   recommended_kind="agent"
-  recommended_target="design"
-  recommended_reason="上游文档已 ready，但 design-spec.md 缺失。"
-elif [[ "$design_ready" != "true" ]]; then
+  recommended_target="plan"
+  recommended_reason="上游已 ready，但当前没有 active exec-plan。"
+elif (( waiting_active_plan_count > 0 && ready_active_plan_count == 0 )); then
   recommended_target="review"
-  recommended_reason="design-spec.md 已存在但还不能被下游消费。"
-  add_blocker "design_spec_not_ready"
+  recommended_reason="存在 active exec-plan，但尚未达到可执行状态。"
+  add_blocker "active_plan_not_ready"
 elif (( ready_active_plan_count > 0 )); then
   recommended_kind="agent"
   recommended_target="feature"
   recommended_reason="存在 approved 且无未决 Q 的 active exec-plan，可进入实现。"
-elif (( waiting_active_plan_count > 0 )); then
+# --- UI 条件分支：feature 完成后，仅 ui 项目路由到 design ---
+elif [[ "$project_ui" == "true" && "$design_exists" != "true" ]]; then
+  recommended_kind="agent"
+  recommended_target="design"
+  recommended_reason="逻辑层实现完成，ui 项目需要 design-spec.md。"
+elif [[ "$project_ui" == "true" && "$design_ready" != "true" ]]; then
   recommended_target="review"
-  recommended_reason="存在 active exec-plan，但尚未达到可执行状态。"
-  add_blocker "active_plan_not_ready"
+  recommended_reason="design-spec.md 已存在但还不能被下游消费。"
+  add_blocker "design_spec_not_ready"
 else
-  recommended_target="plan"
-  recommended_reason="上游已 ready，但当前没有可执行的 active exec-plan。"
+  recommended_target="verify"
+  recommended_reason="管线各阶段已完成，进入验证。"
 fi
 
 mkdir -p "$(dirname "$STATE_FILE")"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# 溯源覆盖率报告 — 机械化阻塞门 G5
+# 溯源覆盖率报告 — 机械化阻塞门 G4
 # 数据源：requirements.trace.yaml（sidecar）
 #   - trackable 列表：需要追踪的 R/F ID
 #   - requirements / findings 段：ID → name 映射
