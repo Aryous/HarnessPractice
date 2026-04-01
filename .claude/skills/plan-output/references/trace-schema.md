@@ -16,6 +16,14 @@ entries:
   - input: R1.1            # trackable ID
     disposition: covered    # covered / excluded / partial
     output: Task 1, Task 3  # 对应的 task
+    layer: types, service   # task 所属的架构层
+    note: ""
+
+  - input: R2.3
+    disposition: covered
+    output: Task 9
+    layer: ui               # UI 层 task
+    blocked_by: design-spec # 等待 design-spec approved
     note: ""
 
   - input: R4.1
@@ -36,3 +44,5 @@ entries:
 | `entries[].disposition` | 是 | `covered` / `excluded` / `partial` |
 | `entries[].output` | 条件 | disposition 为 covered/partial 时必填，标注对应 task |
 | `entries[].note` | 否 | excluded/partial 时说明原因 |
+| `entries[].layer` | 否 | task 所属的架构层（从 ARCHITECTURE.md 域分层模型获取） |
+| `entries[].blocked_by` | 否 | 阻塞条件（如 `design-spec`，仅 UI 层 task） |

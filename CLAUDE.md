@@ -54,11 +54,17 @@ pipeline:
 
     intent(approved)  # 由主控撰写，人类审批
       → [G1]  req-review agent        → requirements.md
-      → [G1a] arch-bootstrap agent    → ARCHITECTURE.md
+      → [G1a] arch-bootstrap agent    → ARCHITECTURE.md + linter 规则
       → [G2]  tech-selection agent    → tech-decisions.md
-      → [G3]  design agent (阶段A)    → design-spec.md
-      → [G4]  plan agent              → exec-plan
-      → [G5]  feature agent           → code
+      → [G3]  plan agent              → exec-plan（含 layer 标注）
+      → [G4]  feature agent           → 逻辑层代码（types ~ runtime）
+
+      # 条件分支：读 project.md.ui 字段
+      if project.md.ui == true:
+          → [G5]  design agent (mode A) → design-spec.md
+          → [G5a] design agent (mode B) → UI 层代码
+      # ui == false 时跳过 design，feature 已实现所有层
+
       → verify
 
     each_stage:
@@ -77,6 +83,20 @@ pipeline:
         set output.status = review
         wait human approval → approved
         refresh STATE.yaml
+
+
+on_design_mode_b_q:
+    # design mode B 上报缺 runtime 接口
+    receive Q from design agent
+    present Q to human for 裁决
+
+    if human approves adding interface:
+        dispatch feature agent → 补 runtime 层接口
+        re-verify 逻辑层（trace + lint + typecheck + tests）
+        resume design mode B
+    elif human chooses alternative UI approach:
+        回注裁决到 design-spec.md
+        resume design mode B with adjusted spec
 
 
 on_commit_request:
@@ -115,7 +135,7 @@ on_commit_request:
 | req-review | intent → 结构化需求 | `.claude/agents/req-review.md` |
 | architecture-bootstrap | 需求 → 分层架构 | `.claude/agents/architecture-bootstrap.md` |
 | tech-selection | 需求 → 技术决策 | `.claude/agents/tech-selection.md` |
-| design | 需求 → 设计规范 / 实现 | `.claude/agents/design.md` |
+| design | 逻辑层完成后 → 设计规范 / UI 层实现 | `.claude/agents/design.md` |
 | plan | 上游文档 → 执行计划 | `.claude/agents/plan.md` |
 | feature | exec-plan → 代码实现 | `.claude/agents/feature.md` |
 | doc-fix | 按需文档修复 | `.claude/agents/doc-fix.md` |

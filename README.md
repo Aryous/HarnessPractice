@@ -4,7 +4,7 @@ Agent 驱动的软件工程框架——从需求到代码的全链路管线。
 
 ## 核心理念
 
-- **管线即门禁**：intent → requirements → architecture → tech-decisions → design → plan → code，每个阶段有明确的准入/准出条件
+- **管线即门禁**：intent → requirements → architecture → tech-decisions → plan → code(逻辑层) → design → code(UI层)，每个阶段有明确的准入/准出条件
 - **Agent 各司其职**：7 个 Agent 角色，每个有独立的职责边界和输出契约（Skill）
 - **文档即状态**：所有决策写入文档，口头结论不算落库
 - **Sidecar 溯源**：结构化追踪数据与文档正文解耦，脚本读 YAML 不 scrape Markdown
@@ -43,12 +43,16 @@ CLAUDE.md         主控入口
 
 ```
 intent(approved)
-  → [G1]  req-review        → requirements.md
-  → [G1a] arch-bootstrap    → ARCHITECTURE.md
-  → [G2]  tech-selection    → tech-decisions.md
-  → [G3]  design (阶段A)    → design-spec.md
-  → [G4]  plan              → exec-plan
-  → [G5]  feature           → code
+  → [G1]  req-review           → requirements.md
+  → [G1a] arch-bootstrap       → ARCHITECTURE.md + linter 规则
+  → [G2]  tech-selection       → tech-decisions.md
+  → [G3]  plan                 → exec-plan（含 layer 标注）
+  → [G4]  feature              → 逻辑层代码（types ~ runtime）
+
+  if project.md.ui == true:
+    → [G5]  design (mode A)    → design-spec.md
+    → [G5a] design (mode B)    → UI 层代码
+
   → verify
 ```
 
