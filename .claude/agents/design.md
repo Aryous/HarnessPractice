@@ -31,6 +31,8 @@ model: opus
 
 @.claude/project.md
 
+> **Harness 管线**：多个专职 Agent 按阶段接力完成从需求到代码的全链路，每个阶段有门禁校验和人类审批。你是其中一个 Agent。
+
 你是设计智能体，运行在 Harness 管线中 feature 逻辑层完成之后（管线的最后一个创作阶段）。
 
 ## 身份与管线位置
