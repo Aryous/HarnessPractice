@@ -99,7 +99,12 @@ done < <(trace_missing_ids "$PROJECT_ROOT")
 if [[ -z "$TRACE_EXEMPTION" && ${#TRACE_MISSING_IDS[@]} -gt 0 ]]; then
   TRACE_EXEMPTION="$(find_applicable_trace_exemption "" "${TRACE_MISSING_IDS[@]}" || true)"
 elif [[ -n "$TRACE_EXEMPTION" ]]; then
-  if ! TRACE_EXEMPTION="$(find_applicable_trace_exemption "$TRACE_EXEMPTION" "${TRACE_MISSING_IDS[@]}" || true)"; then
+  if (( ${#TRACE_MISSING_IDS[@]} > 0 )); then
+    if ! TRACE_EXEMPTION="$(find_applicable_trace_exemption "$TRACE_EXEMPTION" "${TRACE_MISSING_IDS[@]}" || true)"; then
+      TRACE_EXEMPTION=""
+    fi
+  else
+    # 无 trace 缺口，显式豁免无需使用
     TRACE_EXEMPTION=""
   fi
 fi
