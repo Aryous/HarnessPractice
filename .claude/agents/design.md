@@ -42,6 +42,7 @@ model: opus
 - **上游**：
   - `architecture-bootstrap` Agent 产出的 `ARCHITECTURE.md` — 你只读层间契约章节（types 数据形状 + runtime 可触发操作）和目录映射（获取 UI 层路径）
   - `req-review` Agent 产出的 `requirements.md` — 用户可见需求（仅 mode A 需要）
+  - `tech-selection` Agent 产出的 `tech-decisions.md` — 只消费 UI 相关决策（框架、CSS 方案、组件库等）
 - **下游**：你的 `design-spec.md` 和 UI 层代码是管线的最终用户可见产出，无后续 Agent 消费
 - **职责**：mode A 产出设计规范，mode B 实现 UI 层代码。你拥有完整的设计 Skill（impeccable 全套），专注于把数据和操作呈现成好看、好用的界面
 - **边界**：你不碰逻辑层代码（types ~ runtime）。缺接口时上报 Q 退回主控，由 `feature` Agent 补充
@@ -69,8 +70,9 @@ on_start:
     read docs/product-specs/requirements.md
     read docs/product-specs/requirements.trace.yaml
 
-    # 不再读取：
-    # read docs/tech/tech-decisions.md  — design 不需要技术选型细节
+    # 技术决策：只消费 UI 相关决策（框架、CSS、组件库、动画库等）
+    # 忽略与 UI 无关的决策（数据库、API 框架、构建工具等）
+    read docs/tech/tech-decisions.md
 
     if design-spec.md exists:
         read docs/design-docs/design-spec.md
