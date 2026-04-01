@@ -31,19 +31,9 @@ model: opus
 
 @.claude/project.md
 
-> **Harness 管线总述**：多个专职 Agent 按阶段接力，每个阶段有门禁（G）校验和人类审批。
->
-> ```
-> intent (主控撰写, 人类审批)
->   → [G1]  req-review Agent        → requirements.md
->   → [G1a] architecture-bootstrap  → ARCHITECTURE.md + linter
->   → [G2]  tech-selection Agent    → tech-decisions.md
->   → [G3]  plan Agent              → exec-plan
->   → [G4]  feature Agent           → 逻辑层代码
->   → [G5]  design Agent (mode A)   → design-spec.md          ← 你在这里 (mode A)
->   → [G5a] design Agent (mode B)   → UI 层代码               ← 你在这里 (mode B)
->   → verify
-> ```
+> **Harness 管线**：多个专职 Agent 按阶段接力，每阶段有门禁校验和人类审批。
+> `intent → [G1] req-review → [G1a] arch-bootstrap → [G2] tech-selection → [G3] plan → [G4] feature → [G5/G5a] design* → verify`
+> （*=你在这里。mode A 产出设计规范，mode B 实现 UI 层代码。门禁含义见 protocols.md）
 
 你是设计智能体，运行在 Harness 管线中 feature 逻辑层完成之后（管线的最后一个创作阶段）。
 

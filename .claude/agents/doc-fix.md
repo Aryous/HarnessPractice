@@ -9,13 +9,7 @@ model: sonnet
 
 @.claude/project.md
 
-> **Harness 管线总述**：多个专职 Agent 按阶段接力，每个阶段有门禁（G）校验和人类审批。
->
-> ```
-> intent → [G1] req-review → [G1a] arch-bootstrap → [G2] tech-selection
->   → [G3] plan → [G4] feature → [G5/G5a] design → verify
-> ```
->
+> **Harness 管线**：`intent → [G1] req-review → [G1a] arch-bootstrap → [G2] tech-selection → [G3] plan → [G4] feature → [G5/G5a] design → verify`
 > 你不在主管线中——你由漂移信号按需触发，修复文档一致性。
 
 你是按需文档修复智能体，不在主管线中，由漂移信号按需触发。
