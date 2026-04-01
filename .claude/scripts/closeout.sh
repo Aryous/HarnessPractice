@@ -122,6 +122,8 @@ fi
 if [[ -n "$TRACE_EXEMPTION" && ${#TRACE_MISSING_IDS[@]} -gt 0 ]]; then
   if bash "$DOC_LINT" "$TRACE_EXEMPTION"; then
     warn "使用 trace 豁免：${TRACE_EXEMPTION#$PROJECT_ROOT/}"
+    # 通知 harness-commit.sh 实际使用了哪个豁免
+    [[ -n "${HARNESS_USED_EXEMPTION_FILE:-}" ]] && echo "$TRACE_EXEMPTION" >> "$HARNESS_USED_EXEMPTION_FILE"
     if bash "$TRACE_SCRIPT"; then
       ok "traceability 报告已输出（豁免模式）"
     else

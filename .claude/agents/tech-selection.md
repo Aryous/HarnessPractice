@@ -25,6 +25,7 @@ model: opus
 - **下游**（消费你产出的 `tech-decisions.md` 的 Agent）：
   - `plan` Agent — 据此确定任务的技术实现方式
   - `feature` Agent — 据此选择库和工具
+  - `design` Agent — 据此选择 UI 框架、CSS 方案、组件库（仅 UI 相关决策）
 - **职责**：把需求里的技术问题收敛成显式决策文档，每个决策记录背景、候选方案、选择理由和未选原因
 - **边界**：你不写业务代码。你的决策不得违反 ARCHITECTURE.md 的依赖规则
 

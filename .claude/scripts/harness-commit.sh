@@ -66,24 +66,29 @@ if (( ${#GIT_ARGS[@]} == 0 )); then
 fi
 
 EXEMPTION_LIB="$PROJECT_ROOT/.claude/scripts/exemption-lib.sh"
+USED_EXEMPTION_FILE="$(mktemp)"
+export HARNESS_USED_EXEMPTION_FILE="$USED_EXEMPTION_FILE"
 
-bash "$CLOSEOUT" "${CLOSEOUT_ARGS[@]}"
+if (( ${#CLOSEOUT_ARGS[@]} > 0 )); then
+  bash "$CLOSEOUT" "${CLOSEOUT_ARGS[@]}"
+else
+  bash "$CLOSEOUT"
+fi
 git -C "$PROJECT_ROOT" commit "${GIT_ARGS[@]}"
 
 # 提交成功后，推进豁免状态（协议七要求脚本自动完成，不依赖 Agent）
+# 仅消费 closeout 实际使用的豁免，不盲目消费所有 approved 豁免
 COMMIT_SHA="$(git -C "$PROJECT_ROOT" rev-parse HEAD)"
-if [[ -f "$EXEMPTION_LIB" ]]; then
+if [[ -f "$EXEMPTION_LIB" && -s "$USED_EXEMPTION_FILE" ]]; then
   source "$EXEMPTION_LIB"
-  for exemption_file in "$PROJECT_ROOT"/docs/exemptions/*.md; do
+  while IFS= read -r exemption_file; do
     [[ -f "$exemption_file" ]] || continue
-    [[ "$(basename "$exemption_file")" == "template.md" ]] && continue
-    ex_status="$(frontmatter_value "$exemption_file" "status")"
     ex_mode="$(frontmatter_value "$exemption_file" "mode")"
-    [[ "$ex_status" == "approved" ]] || continue
     if [[ "$ex_mode" == "one_shot" ]]; then
       mark_exemption_consumed "$exemption_file" "$COMMIT_SHA"
     elif [[ "$ex_mode" == "until_resolved" ]]; then
       record_exemption_usage "$exemption_file" "$COMMIT_SHA"
     fi
-  done
+  done < "$USED_EXEMPTION_FILE"
 fi
+rm -f "$USED_EXEMPTION_FILE"
