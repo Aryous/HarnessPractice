@@ -9,7 +9,7 @@
 | 用户意图 | 动作 |
 |---|---|
 | "当前在哪个阶段" | 读 `.claude/STATE.yaml` |
-| "哪些需求没完成" | 读 `requirements.md` → 读 `TRACE_INDEX.yaml` |
+| "哪些需求没完成" | 读 `requirements.md` → 读 `requirements.trace.yaml` |
 | "某个文档覆盖了什么" | 读对应的 `*.trace.yaml` |
 | "为什么不能提交" | 跑 `closeout.sh` |
 | "为什么被豁免放行" | 读 `docs/exemptions/*.md` |

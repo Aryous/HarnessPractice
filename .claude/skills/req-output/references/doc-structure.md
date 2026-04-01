@@ -7,7 +7,7 @@
 status: draft | review | approved
 author: req-review
 date: YYYY-MM-DD
-blocks: [architecture-bootstrap, tech-selection, plan]
+blocks: [architecture-bootstrap, tech-selection, plan, design]
 open_questions: 0
 ---
 ```

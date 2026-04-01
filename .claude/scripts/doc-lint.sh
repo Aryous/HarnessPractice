@@ -203,7 +203,7 @@ validate_trace_table_doc() {
   local rel="${file#$PROJECT_ROOT/}"
 
   require_section "$file" '^## 溯源表$' "$rel 溯源表章节"
-  require_section "$file" '^\| 输入条目 \| 处理 \| 输出位置 \| 备注 \|$' "$rel 溯源表表头"
+  require_section "$file" '^\| 输入条目 \| 处理 \| \(输出位置\|Task\) \| 备注 \|$' "$rel 溯源表表头"
 }
 
 validate_file() {
