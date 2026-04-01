@@ -39,6 +39,28 @@ bootstrap | incremental:
         scan src/ 目录结构和 import 依赖方向
         # 目录映射必须忠实反映当前结构
 
+    # ── 分层方法论 ──
+    determine_layers:
+        # 1. 识别关注点：这个项目有几个独立的变化原因？
+        concerns = identify_independent_concerns(requirements)
+
+        # 2. 稳定性梯度：哪些是稳定的（数据定义），哪些是易变的（UI）？
+        sort concerns by stability: most_stable → most_volatile
+
+        # 3. 粒度检验：候选层是否有足够独立的复杂度？
+        for each candidate_layer:
+            if estimated_complexity_too_low and no_independent_change_reason:
+                merge with adjacent layer
+            # 不为"对称"或"好看"而拆层
+
+        # 4. 边界验证："替换这一层的实现，其他层需要改吗？"
+        for each layer_boundary:
+            if replacement_would_cascade:
+                boundary is wrong → adjust
+
+        # 5. 依赖方向验证：稳定的不依赖易变的
+        assert dependency_direction == stable_to_volatile
+
     for each requirement in requirements.trace.yaml.trackable:
         if has_code_organization_implication(requirement):
             # 有分层、依赖方向、唯一入口含义的需求
@@ -63,15 +85,29 @@ bootstrap | incremental:
     output ARCHITECTURE.md             # 按 doc-structure 契约
     output ARCHITECTURE.trace.yaml     # 按 trace-schema 契约（消费端）
 
+    # ── 架构规则 → 可执行 linter ──
+    generate_linter:
+        for each dependency_rule in constraints.依赖规则:
+            translate → linter 规则文件
+            # 具体形式取决于技术栈（ESLint plugin / 结构测试 / 等效机制）
+
+        if tech-decisions.md not exists:
+            # 首次 bootstrap 时 tech-decisions 可能尚未产出
+            output linter 草稿, 标注 pending_tech_stack
+            # tech-selection 完成后主控触发增量修订
+        else:
+            output linter 规则文件（路径由技术栈决定）
+
     set status = review
     # 不得设为 approved，等人类审批
 
 
 close_conditions:
-    assert ARCHITECTURE.md 只回答四件事（分层/依赖/唯一入口/目录映射）
+    assert ARCHITECTURE.md 回答五件事（分层/依赖/层间契约/唯一入口/目录映射）
     assert ARCHITECTURE.trace.yaml 与文档同步
     assert 没有把实现习惯伪装成架构不变量
     assert 所有未决问题显式标记为 Q
+    assert linter 规则文件已产出（或标注 pending_tech_stack）
     assert status != approved
 ```
 
