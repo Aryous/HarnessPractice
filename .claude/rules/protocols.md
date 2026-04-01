@@ -70,23 +70,29 @@ open_questions: 0
 | 门 | 上游 → 下游 | 校验内容 |
 |---|---|---|
 | G1 | intent.md → requirements.md | intent 每个需求点有对应结构化需求条目 |
-| G1a | requirements.md → `.claude/ARCHITECTURE.md` | 每个有代码组织含义的需求有对应的层次 / 边界 / 唯一入口约束 |
+| G1a | requirements.md → ARCHITECTURE.md + linter | 每个有代码组织含义的需求有对应的层次 / 边界 / 唯一入口约束；linter 规则文件已产出（或标注 pending_tech_stack） |
 | G2 | requirements.md → tech-decisions.md | 每个有技术含义的需求有决策记录 |
-| G3 | requirements.md → design-spec.md | 每个用户可见需求有设计覆盖 |
-| G4 | requirements.md → exec-plan (plan agent) | 每个 trackable ID 映射到至少一个计划任务 |
-| G5 | exec-plan → code | `bash .claude/scripts/trace.sh --strict` + lint + typecheck + tests 全部通过；exec-plan 溯源表完整 |
+| G3 | 上游文档 → exec-plan | 每个 trackable ID 映射到至少一个 task；每个 task 标注 layer；UI task 标注 blocked_by |
+| G4 | exec-plan → 逻辑层代码 | trace.sh + lint + typecheck + tests 全部通过（仅逻辑层 task）；exec-plan 逻辑层溯源表完整 |
+| G5 | 逻辑层完成 → design-spec | types + runtime 层代码已存在且接口可消费（仅 `project.md.ui == true` 时） |
+| G5a | design-spec → UI 层代码 | design-spec.md.status == approved 且 open_questions == 0（仅 `project.md.ui == true` 时） |
 
 ### 交接链路
 
 ```
 intent.md (approved)
-  → [G1] req-review → requirements.md (approved)
-  → [G1a] architecture-bootstrap → .claude/ARCHITECTURE.md
-  → [G2] tech-selection → tech-decisions.md (approved)
+  → [G1]  req-review → requirements.md (approved)
+  → [G1a] architecture-bootstrap → ARCHITECTURE.md + linter 规则
+  → [G2]  tech-selection → tech-decisions.md (approved)
   → 环境搭建
-  → [G3] design agent 阶段A → design-spec.md (approved)
-  → [G4] plan agent → exec-plan (approved)
-  → [G5] feature agent → code
+  → [G3]  plan agent → exec-plan (approved, 含 layer 标注)
+  → [G4]  feature agent → 逻辑层代码 (types ~ runtime)
+
+  if project.md.ui == true:
+    → [G5]  design agent 阶段A → design-spec.md (approved)
+    → [G5a] design agent 阶段B → UI 层代码
+
+  → verify
 ```
 
 ---
