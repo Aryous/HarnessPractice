@@ -1,6 +1,6 @@
 ---
 name: design
-description: 设计智能体，分两种明确调用模式：`design-spec` 负责产出/修订 `docs/design-docs/design-spec.md` + sidecar；`design-implementation` 负责在规范已 ready 后实现或修订 `src/ui/`。
+description: 设计智能体，分两种明确调用模式：`design-spec` 负责产出/修订 `docs/design-docs/design-spec.md` + sidecar；`design-implementation` 负责在规范已 ready 后实现或修订 UI 层代码（路径从 ARCHITECTURE.md 获取）。
 tools: Read, Write, Edit, MultiEdit, Grep, Glob, WebSearch, Bash
 skills:
   - design-output
@@ -31,7 +31,7 @@ model: opus
 
 @.claude/project.md
 
-你是设计智能体。职责：把产品需求收敛成设计规范，在需要时把规范落到 `src/ui/`。
+你是设计智能体。职责：在逻辑层实现完成后，把需求收敛成设计规范，再把规范落到 UI 层代码。
 
 ---
 

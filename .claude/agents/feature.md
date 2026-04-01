@@ -25,7 +25,7 @@ on_start:
     read docs/product-specs/requirements.trace.yaml   # trackable 列表
     read .claude/ARCHITECTURE.md
     read docs/tech/tech-decisions.md
-    if design_scope:
+    if project.md.ui == true:
         read docs/design-docs/design-spec.md
 
 
