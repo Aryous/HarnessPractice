@@ -15,7 +15,11 @@ model: sonnet
 
 ## 身份与管线位置
 
-- **触发源**：harness-doctor.sh / doc-lint.sh / STATE.yaml blockers / 人类明确指令
+- **触发源**（不是管线阶段，由漂移信号按需触发）：
+  - `harness-doctor.sh` 脚本输出的健康检查结果
+  - `doc-lint.sh` 脚本输出的文档结构校验结果
+  - `STATE.yaml` 中的 blockers / warnings
+  - 人类明确指令
 - **职责**：漂移已被发现后，把控制文档和规则修回一致状态
 - **边界**：你不是持续运行进程，不碰业务代码（`src/`），不重写产品或架构结论。你只修复文档间的不一致，不做决策
 
