@@ -214,7 +214,14 @@ fi
 active_plan_count=0
 ready_active_plan_count=0
 waiting_active_plan_count=0
+completed_plan_count=0
 active_plan_entries=()
+
+# 统计已完成的 plan（用于区分"还没建 plan"和"plan 全部完成"）
+for file in "$PROJECT_ROOT"/docs/exec-plans/completed/*.md; do
+  [[ -f "$file" ]] || continue
+  completed_plan_count=$((completed_plan_count + 1))
+done
 
 for file in "$PROJECT_ROOT"/docs/exec-plans/active/*.md; do
   [[ -f "$file" ]] || continue
@@ -279,11 +286,12 @@ elif [[ "$tech_ready" != "true" ]]; then
   recommended_reason="tech-decisions.md 已存在但还不能被下游消费。"
   add_blocker "tech_decisions_not_ready"
 # --- 新管线顺序：tech → plan → feature → (if ui) design → verify ---
-elif (( active_plan_count == 0 )); then
-  # 无 exec-plan：推荐 plan agent
+# 关键：区分 "还没建 plan"(active=0, completed=0) 和 "plan 全部完成"(active=0, completed>0)
+elif (( active_plan_count == 0 && completed_plan_count == 0 )); then
+  # 从未建过 plan：推荐 plan agent
   recommended_kind="agent"
   recommended_target="plan"
-  recommended_reason="上游已 ready，但当前没有 active exec-plan。"
+  recommended_reason="上游已 ready，但尚未创建 exec-plan。"
 elif (( waiting_active_plan_count > 0 && ready_active_plan_count == 0 )); then
   recommended_target="review"
   recommended_reason="存在 active exec-plan，但尚未达到可执行状态。"
@@ -292,7 +300,8 @@ elif (( ready_active_plan_count > 0 )); then
   recommended_kind="agent"
   recommended_target="feature"
   recommended_reason="存在 approved 且无未决 Q 的 active exec-plan，可进入实现。"
-# --- UI 条件分支：feature 完成后，仅 ui 项目路由到 design ---
+# --- feature 阶段结束（active plan 全部完成或部分完成） ---
+# --- UI 条件分支：仅 ui 项目路由到 design ---
 elif [[ "$project_ui" == "true" && "$design_exists" != "true" ]]; then
   recommended_kind="agent"
   recommended_target="design"
@@ -315,6 +324,9 @@ tmp_file="$(mktemp)"
   echo "generated_by: $(yaml_quote ".claude/scripts/sync-state.sh")"
   echo "controller_should_read_first: true"
   echo "notes_file: $(yaml_quote ".claude/PIPELINE.md")"
+  echo ""
+  echo "project:"
+  echo "  ui: $project_ui"
   echo ""
   echo "docs:"
   echo "  intent:"

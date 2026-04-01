@@ -252,7 +252,7 @@ validate_file() {
 collect_changed_targets() {
   git -C "$PROJECT_ROOT" status --short 2>/dev/null | awk '{print $2}' | while read -r path; do
     case "$path" in
-      .claude/ARCHITECTURE.md|docs/tech/tech-decisions.md|docs/exec-plans/active/*.md|docs/exec-plans/completed/*.md|docs/exemptions/*.md)
+      .claude/ARCHITECTURE.md|docs/product-specs/requirements.md|docs/tech/tech-decisions.md|docs/design-docs/design-spec.md|docs/exec-plans/active/*.md|docs/exec-plans/completed/*.md|docs/exemptions/*.md)
         echo "$PROJECT_ROOT/$path"
         ;;
     esac

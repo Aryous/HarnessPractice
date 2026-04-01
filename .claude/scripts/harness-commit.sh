@@ -65,5 +65,25 @@ if (( ${#GIT_ARGS[@]} == 0 )); then
   exit 1
 fi
 
+EXEMPTION_LIB="$PROJECT_ROOT/.claude/scripts/exemption-lib.sh"
+
 bash "$CLOSEOUT" "${CLOSEOUT_ARGS[@]}"
 git -C "$PROJECT_ROOT" commit "${GIT_ARGS[@]}"
+
+# 提交成功后，推进豁免状态（协议七要求脚本自动完成，不依赖 Agent）
+COMMIT_SHA="$(git -C "$PROJECT_ROOT" rev-parse HEAD)"
+if [[ -f "$EXEMPTION_LIB" ]]; then
+  source "$EXEMPTION_LIB"
+  for exemption_file in "$PROJECT_ROOT"/docs/exemptions/*.md; do
+    [[ -f "$exemption_file" ]] || continue
+    [[ "$(basename "$exemption_file")" == "template.md" ]] && continue
+    ex_status="$(frontmatter_value "$exemption_file" "status")"
+    ex_mode="$(frontmatter_value "$exemption_file" "mode")"
+    [[ "$ex_status" == "approved" ]] || continue
+    if [[ "$ex_mode" == "one_shot" ]]; then
+      mark_exemption_consumed "$exemption_file" "$COMMIT_SHA"
+    elif [[ "$ex_mode" == "until_resolved" ]]; then
+      record_exemption_usage "$exemption_file" "$COMMIT_SHA"
+    fi
+  done
+fi

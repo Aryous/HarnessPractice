@@ -54,10 +54,12 @@ Bug 必须先被复现为下列一种：
 
 ```bash
 bash .claude/scripts/trace.sh
-npm run lint
-npx tsc -b --noEmit
-npm test
+{lint_command}
+{typecheck_command}
+{test_command}
 ```
+
+（`{xxx_command}` 占位符由 CLAUDE.md 项目配置定义，默认 npm run lint / npx tsc -b --noEmit / npm test）
 
 如果是用户可见 Bug，还应补一条运行时验证：
 - UI 路径重走
