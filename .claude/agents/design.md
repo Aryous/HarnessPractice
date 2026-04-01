@@ -41,11 +41,23 @@ model: opus
 import impeccable.*  # 设计质量工具集，按需调用
 
 on_start:
-    assert requirements.md.status == approved
-    assert tech-decisions.md.status == approved
+    assert project.md.ui == true
+    assert ARCHITECTURE.md exists
+    read .claude/ARCHITECTURE.md                       # 分层模型 + 层间契约 + 目录映射
+
+    # 精确上下文：只读 types 和 runtime 的层间契约
+    types_contract = ARCHITECTURE.md.层间契约.types层   # 数据形状
+    runtime_contract = ARCHITECTURE.md.层间契约.runtime层  # 可触发操作
+
+    # UI 层路径从架构文档获取，不硬编码
+    ui_path = ARCHITECTURE.md.目录结构映射.ui层路径
+
+    # 需求文档：只在 mode A 需要，用于知道用户可见需求
     read docs/product-specs/requirements.md
     read docs/product-specs/requirements.trace.yaml
-    read docs/tech/tech-decisions.md
+
+    # 不再读取：
+    # read docs/tech/tech-decisions.md  — design 不需要技术选型细节
 
     if design-spec.md exists:
         read docs/design-docs/design-spec.md
@@ -56,14 +68,19 @@ on_start:
         read docs/design-docs/ai-interaction-spec.md
 
     mode = detect_mode()
-    # 用户要求设计规范 → A
+    # 用户要求设计规范 → A（前提：feature 逻辑层完成）
     # 用户要求设计实现且规范已 approved → B
 
 
 mode_a_spec:
-    # 需求 → 设计规范
+    # 已实现的接口 + 需求 → 设计规范
+    # 前提：feature Agent 已完成逻辑层（types ~ runtime），接口真实存在
 
     read docs/product-specs/intent.md    # 设计语言方向
+
+    # 核心上下文：types 的数据形状 + runtime 的可触发操作
+    # 从 ARCHITECTURE.md 层间契约获取，不从全量文档获取
+    # 少即是多——给设计需要的，不给设计不需要懂的
     if design-inspiration.md exists:
         read docs/references/design-inspiration.md
     else:
@@ -96,7 +113,7 @@ mode_a_spec:
 
 
 mode_b_implementation:
-    # 设计规范 → src/ui/ 代码
+    # 设计规范 → UI 层代码
     # 本模式不触发 design-output Skill
 
     assert design-spec.md.status == approved
@@ -107,7 +124,22 @@ mode_b_implementation:
     if ai_scope:
         read docs/design-docs/ai-interaction-spec.md
 
-    implement → src/ui/tokens/, src/ui/components/
+    # 路径从 ARCHITECTURE.md 目录映射获取，不硬编码
+    implement → {ui_path}/tokens/, {ui_path}/components/
+
+    if implementation_needs_missing_runtime_interface:
+        # 不自己补逻辑层代码——退回主控
+        write Q(
+            背景: "UI 实现需要 runtime 暴露 {接口名}，当前层间契约中不存在",
+            选项: [
+                A: "由 feature Agent 补充 runtime 接口",
+                B: "调整 UI 方案绕开此接口依赖"
+            ],
+            影响: "阻塞 UI 层 {组件名} 的实现",
+            阻塞: "design mode B"
+        )
+        set status = review
+        return  # 交回主控
 
     if implementation reveals spec gap:
         # 先修规范，再继续实现
@@ -127,7 +159,8 @@ close_conditions:
     if mode == B:
         assert 实现遵守令牌优先原则
         assert 无硬编码色值、字号、间距
-        assert 所有视觉组件在 src/ui/ 内
+        assert 所有视觉组件在 {ui_path} 内（路径从 ARCHITECTURE.md 获取）
+        assert 未修改 {ui_path} 之外的代码（逻辑层是 feature 的职责）
 ```
 
 ---
@@ -135,6 +168,8 @@ close_conditions:
 ## 禁止事项
 
 - 不得硬编码色值、字号、间距（必须走 token 系统）
-- 不得在 `src/ui/` 之外创建视觉组件
+- 不得在 UI 层路径（ARCHITECTURE.md 定义）之外创建视觉组件
+- 不得修改 UI 层路径之外的代码——逻辑层是 feature Agent 的职责
+- 不得在缺 runtime 接口时自行补充逻辑层代码——上报 Q 退回主控
 - classical-tokens.md 只能描述已存在的 token/组件，不得凭空发明
 - 不得将 `status` 设为 `approved`
